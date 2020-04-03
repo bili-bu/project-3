@@ -13,7 +13,7 @@ const CommentForm = ( { handleSubmit, handleChange } ) => {
       type="text"
     >
     </textarea>
-    <button className='submitButton'>Comment ⌨️</button>
+    <button className='submitButton'>Comment</button>
   </form>
   
 }
@@ -94,15 +94,11 @@ class Comments extends React.Component {
       <h2 className='titleComments'>Comments</h2>
       <div className='listOfComments'>
         {this.state.comments.map((comment, i) => {
-          const isOwner = this.isOwner(comment)
           console.log(comment) 
           return <div className='commentInfo' key={i}>
             <div className="commentBox">
               <h4 className='userNameComments'>{comment.user.username}</h4>
               <p>{comment.comment}</p>
-              {isOwner && <figure className='binContainer'><img 
-                onClick={() => this.handeleDelete(comment)}
-                className='bin' src="../styles/images/bin1.png" alt="bin"/></figure>}
             </div>
           </div>
         })}
