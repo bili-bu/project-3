@@ -4,9 +4,12 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "seed": "node backend/seed.js",
-    "serve:back": "nodemon backend/app.js",
-    "serve:front": "webpack-dev-server --mode-development"
+    "build": "npm run seed; webpack -p",
+    "start": "node backend/app.js"
+    // ,
+    // "seed": "node backend/seed.js",
+    // "serve:back": "nodemon backend/app.js",
+    // "serve:front": "webpack-dev-server --mode-development"
   },
   "author": "",
   "license": "ISC",
