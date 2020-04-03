@@ -1,7 +1,6 @@
 const mongoose = require('mongoose')
 const User = require('./models/user')
-
-const dbURI = 'mongodb://localhost/trivia-db'
+const { dbURI } = require('./config/environment')
 
 mongoose.connect(
   dbURI,
