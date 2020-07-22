@@ -15,6 +15,10 @@ You can launch the site on Heroku [here](https://trivia-game-alex.herokuapp.com/
 - **Consume the API with a separate front-end built with React** 
 - **Be a complete product which most likely means multiple relationships and CRUD functionality for at least a couple of models** 
 
+### The Approach 
+
+We decided to use both an external API and our own database to store user information in the backend. It was important for us to choose an API with a structure that we could understand well. We deceided to use a Open Source REST [API](https://opentdb.com/api_config.php) to fetch our questions and answers for the quiz. 
+
 ### Technologies Used 
 
 - HTML5
@@ -28,11 +32,7 @@ You can launch the site on Heroku [here](https://trivia-game-alex.herokuapp.com/
 - SASS
 - Heroku
 
-## The Approach 
-
-We decided to use both an external API and our own database to store user information in the backend. It was important for us to choose an API with a structure that we could understand well. We deceided to use a Open Source REST [API](https://opentdb.com/api_config.php) to fetch our questions and answers for the quiz. 
-
-### The Backend
+## The Backend
 
 The backend was built following the conventional MVC model. When creating our backend, the first step we took as a team was to decide the structure of our backend and which components we would need to build out. Below is the list of components we agreed should be part of our MVC: 
 
@@ -59,19 +59,10 @@ To start off our model we created a seed.js file with some users which would mak
 
 After this was completed, we were able to tackle the MVC.
 
-1. **Models**
+### 1.Models
 
-We created two models which we knew we would need for our backend. 
+We needed to create two models for our MVC which would be vital for data storgae in the backend. The first model consists of two schemas: a **(user) schema** and a **score schema**, where the score schema is embedded in the user schema so as to always associate a score for right answers and a score for wrong answers with a user. To prevent people registering with the same username or email, we used the **mongoose-unique-validator**.
 
-**Comment Model**
-
-```js
-const schema = new mongoose.Schema({
-  comment: { type: String, required: true },
-  user: { type: mongoose.Schema.ObjectId, ref: 'User', require: true } 
-})
-
-```
 **User Model**
 
 ```js
@@ -85,47 +76,19 @@ const schema = new mongoose.Schema({
   email: { type: String, unique: true, required: true },
   password: { type: String, required: true },
   score: scoreSchema
-},
+}
+```
 
-{
-  toJSON: {
-    transform(doc, json) {
-      return {
-        email: json.email,
-        username: json.username,
-        id: json._id,
-        score: json.score
-      }
-    }
-  }
+**Comment Model**
+
+The second model consists of the **(comment) schema**. Any comment that gets generated is always associated with a specific user which allows us to group comments by registered user. 
+
+```js
+const schema = new mongoose.Schema({
+  comment: { type: String, required: true },
+  user: { type: mongoose.Schema.ObjectId, ref: 'User', require: true } 
 })
 
-schema.plugin(require('mongoose-unique-validator'))
-schema
-  .virtual('passwordConfirmation')
-  .set(function setPasswordConfirmation(passwordConfirmation) {
-    this._passwordConfirmation = passwordConfirmation
-  })
-
-schema
-  .pre('validate', function checkPassword(next) {
-    if (this.isModified('password') && this._passwordConfirmation !== this.password) {
-      this.invalidate('passwordConfirmation', 'should match')
-    }
-    next()
-  })
-
-schema
-  .pre('save', function hashPassword(next) {
-    if (this.isModified('password')) {
-      this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync())
-    }
-    next()
-  })
-
-schema.methods.validatePassword = function validatePassword(password) {
-  return bcrypt.compareSync(password, this.password)
-}
 ```
 
 **The Endpoints**
