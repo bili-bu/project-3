@@ -39,22 +39,6 @@ function getUserInfo(req, res) {
     })
 }
 
-// function editUserInfo(req, res) {
-//   const currentUser = req.currentUser._id
-//   const id = req.params.id
-//   User
-//     .findById(id)
-//     .then(userInfo => {
-//       if (!userInfo.user.equals(currentUser._id)) return res.status(401).send({ message: 'Unauthorized' })
-//       return userInfo.set(req.body)
-//     })
-//     .then(userInfo => {
-//       return userInfo.save()
-//     })
-//     .then(userInfo => {
-//       res.status(202).send(userInfo)
-//     })
-// }
 
 function addToScore(req, res) {
   const currentUser = req.currentUser.id
@@ -80,6 +64,5 @@ module.exports = {
   login,
   index,
   getUserInfo,
-  // editUserInfo,
   addToScore
 }

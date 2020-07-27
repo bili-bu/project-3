@@ -5,7 +5,7 @@
 
 This project was our third project during our time at General Assembly. We were paired in a team of four and were tasked to create a full-stack MERN application in 10 days. We were given creative free range with regards to the kind of application we wanted to build. We decided as a team that we wanted to make a fun interactive game application and had come across an external API called OpenTriviaDB with multiple choice and true of false trivia questions which we thought would be a good idea to utilize. So we created the game and stored user information, scores and comments on our back end.
 
-You can launch the site on Heroku [here](https://trivia-game-alex.herokuapp.com/).
+You can launch the site on Heroku [here](https://trivia-game-alex.herokuapp.com/register).
 
 ### The Brief 
 
@@ -86,50 +86,25 @@ The second model consists of the **(comment) schema**. Any comment that gets gen
 ```js
 const schema = new mongoose.Schema({
   comment: { type: String, required: true },
-  user: { type: mongoose.Schema.ObjectId, ref: 'User', require: true } 
+  user: { type: mongoose.Schema.ObjectId, ref: 'User', required: true } 
 })
-
 ```
 
-**The Endpoints**
+### 2. Controllers
 
-User:
+Given that we had two models, we were bound to have to create two controllers one for the user (userController.js) and one for the comments (commentController.js). All of the functions take a **req** and a **res** which are the requests sent to the API and the response received.
 
-- `/register`
+**User:**
 
-From the Register component we are posting to the register endpoint.
+The user controller consists of five functions:
 
+- function register
+- function login
+- function addToScore
+- function getUserInfo
+- function index
 
-```js
-function register(req, res, next) {
-  console.log(req.body)
-  User
-    .create(req.body)
-    .then(user => res.status(200).send(user)) 
-    .catch(next)
-}
-```
-- `/login`
-
-From the Login component we are posting to the login endpoint.
-
-```js
-function login(req, res) {
-  User
-    .findOne({ email: req.body.email })
-    .then(user => {
-      if (!user.validatePassword(req.body.password)){
-        return res.status(401).send({ message: 'Unauthorized' })
-      }
-      const token = jwt.sign({ sub: user._id }, secret, { expiresIn: '48h' } )
-      res.status(202).send({ message: `Welcome back ${user.username}`, token })
-    })
-}
-```
-
-- `/display-score`
-
-From the DisplayScore component we are putting to the addToScore endpoint.
+Most of these functions are pretty self-explanatory. It's interesting to note that after each game of ten answered questions the `addToScore` function gets called and the score of the most recently completed game gets added to the exisitng score in the user profile. This way the user profile always carries the compounded historical score for each registered player. See the full function below.
 
 ```js
 function addToScore(req, res) {
@@ -150,28 +125,9 @@ function addToScore(req, res) {
       res.status(202).send(user)
     })
 }
-
 ```
 
-- `/profile`
-
-From the Profile component we are getting from the getUserInfo endpoint.
-
-```js
-function getUserInfo(req, res) {
-  const id = req.params.id
-  User
-    .findById(id)
-    .then(userInfo => {
-      res.send(userInfo)
-    })
-}
-
-```
-
-- `/leader-board`
-
-From the LeaderBoard component we are getting from the index endpoint.
+We use the `index` function for our leaderboard in the front-end of the application (more on that below). This function simply gets the information for all users in the API. 
 
 ```js
 function index (req, res) {
@@ -183,81 +139,35 @@ function index (req, res) {
 }
 ```
 
-Comment:
+We had plans to have a function for editing user profile information but due to time constraints we didn't get around to creating one. 
 
-  - `Comment`
+**Comment:**
 
-  From the Comments component we are getting all comments, posting and deleting, from their respective endpoints.
+The comment controller consists of three functions:
 
-  ```js
-  function allComments (req, res) {
-  Comment
-    .find()
-    .populate('user')
-    .then(post => {
-      res.send(post)
-    })
-}
+- function allComments
+- function commentCreate
+- function commentDelete
 
-function commentCreate(req, res){
-  req.body.user = req.currentUser
-  Comment
-    .create(req.body)
-    .then(post => {
-      res.status(201).send(post)
-    })
-}
+As per the model, each time a user posts a comment in the comments section, it will be stored in the API and can also be deleted from there.
 
-function commentDelete(req, res) {
-  Comment
-    .findById(req.params.commentId)
-    .then(post => {
-      if (!post) return res.status(401).send({ message: 'Unauthorized' })
-      return post.remove()
-    }) 
-    .then(() => res.status(200).json({ message: 'comment deleted' }))
-    .catch(err => console.log(err))
-}
-```
-  
-**SECURE ROUTE**
 
-A number of the API Endpoints need to pass through a secure route to ensure that the user is authorised. An example of how this looks in the router is below:
+### 3. Security and encryption
+
+Looking at the `router.js` file, you can see that a number of our API Endpoints pass through a secure route which has been created in the `secureRoute.js` file to ensure that the user is authorised when accessing those endpoints. As you can see from the below example, all registered users are able to view the rankings of the leaderboard, since we wanted users to be able to compare themselves with their peers. 
 
 ```js
-router.route('/user/:id')
-  .get(userController.getUserInfo)
-  .put(secureRoute, userController.addToScore)
-
+router.route('/users')
+  .get(userController.index)
 ```
-
-You need to be authorized to put (edit) the user info but not to get.
-
-We need a JSON Web Token for this. When a user logs in, they are assigned a token:
+In comparison, the endpoint for comment deletion is secured since we wanted to limit users deleting comments that were not theirs.
 
 ```js
-
-const token = jwt.sign({ sub: user._id }, secret, { expiresIn: '48h' } )
-      res.status(202).send({ message: `Welcome back ${user.username}`, token })
-
-```
-When the token is received by our front-end, it is saved to local storage:
-
-```js
-function setToken (token) {
-  localStorage.setItem('token', token)  
-}
+router.route('/comments/:commentId')
+  .delete(secureRoute, commentController.commentDelete)
 ```
 
-And we get the token and include it in the header of any of our requests to the API:
-
-```js
-function getToken() {
-  return localStorage.getItem('token')
-}
-```
-
-Below is how the SecureRoute is setup:
+Below the secureRoute setup:
 
 ```js
 function secureRoute(req, res, next) {
@@ -280,9 +190,34 @@ function secureRoute(req, res, next) {
 }
 ```
 
+The function is looking for and comparing the JWT (Jason Web Token) that is assigned to each user upon login. If say, the user who is trying to delete a comment doesn't have the same token as the user associated with the comment, he will not be able to proceed. Inversely, should the token be the same, the user will be able to delete the comment.
+
+Please see below the code for adding a token during login which can be found in the login function of the `userController.js`:
+
+```js
+const token = jwt.sign({ sub: user._id }, secret, { expiresIn: '48h' } )
+      res.status(202).send({ message: `Welcome back ${user.username}`, token })
+```
+
+This token will expire in 48 hours, which means that a user remains logged in for 48 hours unless they voluntarily log out before this time period is over. It is common practice to have tokens expire in a shorter timeframe (12 hours) but for our ease of access while building the application we kept the expiry timeframe longer.
+
+Please also note the mention of a secret in the above code. This is an extra security measure that was implementd to add an extra layer of security. The secret is stored in the `environment.js` file and is only accessible to the developers of the application.
+
+Another additional measure of security is the use of an encryption library called **Bcrypt**. We make use of bcrypt in the user model. When a new user registers for our application, naturally all of the information they provided is saved to the database. But before the password is saved to the database, the library will hash the password and store it as such in the database.  
+
+```js
+schema
+  .pre('save', function hashPassword(next) {
+    if (this.isModified('password')) {
+      this.password = bcrypt.hashSync(this.password, bcrypt.genSaltSync())
+    }
+    next()
+  })
+```
+
 ## The Frontend
 
-We decided to design our app with mobile-first view when bulding the game. It was built using React and has 11 components.
+We decided to design our app with mobile-first view when building the game. It was built using React and has 11 components.
 
 <img  src=frontend/src/styles/images/quiz.png height=300> <img  src=frontend/src/styles/images/login.png height=300> <img  src=frontend/src/styles/images/multiple-choice.png height=300>
 
