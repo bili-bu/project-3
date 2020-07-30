@@ -17,7 +17,7 @@ You can launch the site on Heroku [here](https://trivia-game-alex.herokuapp.com/
 
 ### The Approach 
 
-We decided to use both an external API and our own database to store user information in the backend. It was important for us to choose an API with a structure that we could understand well. We deceided to use a Open Source REST [API](https://opentdb.com/api_config.php) to fetch our questions and answers for the quiz. 
+We decided to use both an external API and our own database to store user information in the backend. It was important for us to choose an API with a structure that we could understand well. We decided to use an Open Source REST [API](https://opentdb.com/api_config.php) to fetch our questions and answers for the quiz. 
 
 ### Technologies Used 
 
@@ -59,9 +59,9 @@ To start off our model we created a seed.js file with some users which would mak
 
 After this was completed, we were able to tackle the MVC.
 
-### 1.Models
+### 1. Models
 
-We needed to create two models for our MVC which would be vital for data storgae in the backend. The first model consists of two schemas: a **(user) schema** and a **score schema**, where the score schema is embedded in the user schema so as to always associate a score for right answers and a score for wrong answers with a user. To prevent people registering with the same username or email, we used the **mongoose-unique-validator**.
+We needed to create two models for our MVC which would be vital for data storage in the backend. The first model consists of two schemas: a **(user) schema** and a **score schema**, where the score schema is embedded in the user schema so as to always associate a score for right answers and a score for wrong answers with a user. To prevent people registering with the same username or email, we used the **mongoose-unique-validator**.
 
 **User Model**
 
@@ -104,7 +104,7 @@ The user controller consists of five functions:
 - function getUserInfo
 - function index
 
-Most of these functions are pretty self-explanatory. It's interesting to note that after each game of ten answered questions the `addToScore` function gets called and the score of the most recently completed game gets added to the exisitng score in the user profile. This way the user profile always carries the compounded historical score for each registered player. See the full function below.
+Most of these functions are pretty self-explanatory. It's interesting to note that after each game of ten answered questions the `addToScore` function gets called and the score of the most recently completed game gets added to the existing score in the user profile. This way the user profile always carries the compounded historical score for each registered player. See the full function below.
 
 ```js
 function addToScore(req, res) {
@@ -152,7 +152,7 @@ The comment controller consists of three functions:
 As per the model, each time a user posts a comment in the comments section, it will be stored in the API and can also be deleted from there.
 
 
-### 3. Security and encryption
+### 3. Security and Encryption
 
 Looking at the `router.js` file, you can see that a number of our API Endpoints pass through a secure route which has been created in the `secureRoute.js` file to ensure that the user is authorised when accessing those endpoints. As you can see from the below example, all registered users are able to view the rankings of the leaderboard, since we wanted users to be able to compare themselves with their peers. 
 
@@ -201,7 +201,7 @@ const token = jwt.sign({ sub: user._id }, secret, { expiresIn: '48h' } )
 
 This token will expire in 48 hours, which means that a user remains logged in for 48 hours unless they voluntarily log out before this time period is over. It is common practice to have tokens expire in a shorter timeframe (12 hours) but for our ease of access while building the application we kept the expiry timeframe longer.
 
-Please also note the mention of a secret in the above code. This is an extra security measure that was implementd to add an extra layer of security. The secret is stored in the `environment.js` file and is only accessible to the developers of the application.
+Please also note the mention of a secret in the above code. This is an extra security measure that was implemented to add an extra layer of security. The secret is stored in the `environment.js` file and is only accessible to the developers of the application.
 
 Another additional measure of security is the use of an encryption library called **Bcrypt**. We make use of bcrypt in the user model. When a new user registers for our application, naturally all of the information they provided is saved to the database. But before the password is saved to the database, the library will hash the password and store it as such in the database.  
 
@@ -215,15 +215,16 @@ schema
   })
 ```
 
+
 ## The Frontend
 
-We decided to design our app with mobile-first view when building the game. It was built using React and has 11 components.
+We envisioned our application as a game users could play on the go, so we decided to design it with mobile-first view. As per the brief we were going to use React to build our frontend. Our application consists of 11 components. Below a list of the components.
 
 <img  src=frontend/src/styles/images/quiz.png height=300> <img  src=frontend/src/styles/images/login.png height=300> <img  src=frontend/src/styles/images/multiple-choice.png height=300>
 
-**COMPONENTS**
+### Components
 
-- `Register.js` and `Login.js`
+1. `Register.js` and `Login.js`
 
 The information entered by the user in the registration and login forms is set as state and then posted to our backed endpoints through  `/api/register` and `/api/login`. 
 
@@ -296,15 +297,15 @@ class Login extends React.Component {
   }
 ```
 
-- `MultipleChoice.js` and `TrueOrFalse.js` 
+2. `MultipleChoice.js` and `TrueOrFalse.js` 
 
-We are fetching an array of incorrect answers and we are inserting the correct answer at a random index in that array.
+As to the game in itself, we are fetching an array of incorrect answers from the OpenTriviaDB API and we are inserting the correct answer (also sourced from OpenTriviaDB) at a random index in that array.
 
 So now we have an array of answers and we can just render them and the correct answer will always be at random position. 
 
 When a player clicks on an answer, the function `handlePlayerClick()` will check if the `innerHTML` of the selected answer matches the `innerHTML` of the correct answer. If it does the button will turn green. If it doesn't the button will turn red and we are using Ref to identify the button with the correct answer and change it to green.
 
-Everytime a player clicks on an answer, we are saving their total of right and wrong answers to `localStorage`. When the user has finished the quiz (answer 10 questions), we get our totals from `localStorage` to display their score.
+Every time a player clicks on an answer, we are saving their total of right and wrong answers to `localStorage`. When the user has finished the quiz (answers 10 questions), we get our totals from the `localStorage` to display their score.
 
 ```js
 handlePlayerClick(event) {
@@ -348,7 +349,7 @@ handlePlayerClick(event) {
   }
 ```
 
- - `DisplayScore.js`
+ 3. `DisplayScore.js`
 
 After we get the player's score from `localStorage`, we use a put method to add it to our user information in the backend.
 
@@ -373,7 +374,7 @@ class DisplayScore extends React.Component {
   }
 ```
 
-- `Comments.js` and `NewComment.js`
+4. `Comments.js` and `NewComment.js`
 
 In the `NewComment.js` component users write their comments in a form and then, through the `handleSubmit()` function, we are posting it to our backend endpoint `/api/comments`. 
 
@@ -427,9 +428,9 @@ In the `Comment.js` component we are getting the information from our previous p
 
 ## Challenges
 
-- One of our main challenges was figuring out how to associate a user with their scores. We had to try a few different model structures before we finally decided to have a user model and keep the scores there.
+- One of our main challenges was figuring out how to associate a user with their scores. We had to try a few different model structures before we finally decided to have a user model and keep the scores there. This cost us a lot of time and we had to let go of some of our stretch goals to be able to create a viable product by the deadline.
 
-- Some of the game logic in the frontend was definitely mindbending. Especially displaying the right answer when the player clicks on the wrong answer was tricky. But it was interesting to learn about Refs.
+- Some of the game logic in the frontend was definitely mind-bending. Especially displaying the right answer when the player clicks on the wrong answer was tricky. But it was interesting to learn about Refs.
 
 - The API we were fetching our questions from had special coded characters that were not displaying correctly in our app. We tried many ways to fix this issue but nothing was working. We ended up having to replace each character manually which was long and messy.
 
@@ -437,12 +438,14 @@ In the `Comment.js` component we are getting the information from our previous p
 
 - Since this was our first full-stack application, working on every part of the project from idea planning to deployment was very rewarding. Seeing that we were able to create an entire application with frontend and backend was a great satisfaction.
  
-- This was also our first time working as a group with Git. Learning about how to avoid conflicts and put everyone’s work together was demanding at the beginning, but proved to be very useful for group collaboration.
+- This was also our first time working as a group with Git and Github. Learning about how to avoid conflicts and put everyone’s work together was demanding at the beginning, but proved to be very useful for group collaboration.
 
-- Overcoming the limits of working remotely from home.
+- Overcoming the limits of working remotely from home for the first time for all members of the group.
+
+- We had a little less than a day to set up the design for the whole application. We managed to write all of the CSS in such a way that we could reuse the design we applied to many components giving a very cohesive and smooth design to the game in a very short period of time.  
 
 ## Potential Future Features
 
-- Maybe a timer to answer a question in a limited time.
+- We were thinking of adding a timer to force the user to answer a question in a limited time frame.
 
 - We were thinking about displaying the ranking in percentages instead of correct answers, to make it more independent from the number of games. Since that didn't satisfy us very much, we were thinking about maybe having a new point system.
