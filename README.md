@@ -224,7 +224,7 @@ We envisioned our application as a game users could play on the go, so we decide
 
 ### Components
 
-1. `Register.js` and `Login.js`
+#### 1. `Register.js` and `Login.js`
 
 The information entered by the user in the registration and login forms is set as state and then posted to our backed endpoints through  `/api/register` and `/api/login`. 
 
@@ -297,7 +297,7 @@ class Login extends React.Component {
   }
 ```
 
-2. `MultipleChoice.js` and `TrueOrFalse.js` 
+#### 2. `MultipleChoice.js` and `TrueOrFalse.js` 
 
 As to the game in itself, we are fetching an array of incorrect answers from the OpenTriviaDB API and we are inserting the correct answer (also sourced from OpenTriviaDB) at a random index in that array.
 
@@ -349,7 +349,7 @@ handlePlayerClick(event) {
   }
 ```
 
- 3. `DisplayScore.js`
+####  3. `DisplayScore.js`
 
 After we get the player's score from `localStorage`, we use a put method to add it to our user information in the backend.
 
@@ -374,7 +374,7 @@ class DisplayScore extends React.Component {
   }
 ```
 
-4. `Comments.js` and `NewComment.js`
+#### 4. `Comments.js` and `NewComment.js`
 
 In the `NewComment.js` component users write their comments in a form and then, through the `handleSubmit()` function, we are posting it to our backend endpoint `/api/comments`. 
 
