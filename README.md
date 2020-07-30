@@ -449,3 +449,5 @@ In the `Comment.js` component we are getting the information from our previous p
 - We were thinking of adding a timer to force the user to answer a question in a limited time frame.
 
 - We were thinking about displaying the ranking in percentages instead of correct answers, to make it more independent from the number of games. Since that didn't satisfy us very much, we were thinking about maybe having a new point system.
+
+- Currently our landing page is the register page of our game, we would have liked to have a more flashy interesting landing page to entice the user more.
